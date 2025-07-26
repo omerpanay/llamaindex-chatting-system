@@ -1,0 +1,9 @@
+llama-index
+llama-index-readers-google
+llama-index-embeddings-huggingface
+llama-index-llms-gemini
+google-generativeai
+google-api-python-client
+google-auth
+streamlit
+PyPDF2 
