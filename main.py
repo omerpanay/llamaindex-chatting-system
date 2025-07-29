@@ -1,9 +1,3 @@
-import streamlit as st
-import os
-import tempfile
-import shutil
-from google_drive.chat_interface import run_drive_chat
-from shared.config import setup_environment
 
 def handle_credentials_upload():
     """Handle credentials file upload and setup"""
@@ -87,7 +81,6 @@ def main():
     # Only Google Drive source selection
     st.sidebar.title("📚 Select Data Source")
     st.sidebar.info("Currently only Google Drive is supported.")
-    run_drive_chat()
     
     # Cleanup when app is closed
     if st.sidebar.button("🗑️ Clear Credentials"):
