@@ -5,41 +5,37 @@ from llama_index.core.ingestion import IngestionPipeline
 from llama_index.core.node_parser import SentenceSplitter
 from llama_index.readers.google import GoogleDocsReader
 import multiprocessing
+import os
 
 class GoogleDocsEmbeddingMethod(EmbeddingMethod):
     """Embedding method for Google Docs documents"""
 
-    def __init__(self, doc_ids: List[str], credentials_path: str = "credentials.json"):
+    def __init__(self, doc_ids: List[str], credentials_path: str = None):
         self.doc_ids = doc_ids
-        self.credentials_path = credentials_path
+        self.credentials_path = credentials_path or "credentials.json"
 
     @staticmethod
     def customize_metadata(document: Document, data_source_id: str, **kwargs) -> Document:
         document.metadata = {
             "title": document.metadata.get("title", ""),
-            "data_source_id": data_source_id,
+            "data_source": data_source_id,
+            "source_type": "google_docs"
         }
         return document
 
-    def apply_rules(
-        self,
-        documents: Sequence[Document],
-        inclusion_rules: List[str],
-        exclusion_rules: List[str],
-    ) -> Sequence[Document]:
-        # You can apply inclusion/exclusion rules here
-        return documents
-
-    def get_documents(self, data_source_id: str) -> List[Document]:
-        # Use LlamaIndex's built-in GoogleDocsReader
+    def get_documents(self, data_source_id: str = "google_docs") -> Sequence[Document]:
+        """Get documents from Google Docs"""
         try:
-            # Pass document_ids as a list, as shown in the documentation
-            documents = GoogleDocsReader().load_data(document_ids=self.doc_ids)
-            # Check if documents is None or empty
-            if documents is None:
-                print("Warning: GoogleDocsReader returned None")
-                return []
-            
+            # Set credentials path
+            os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = self.credentials_path
+            print(f"[LOG] (Docs) Using credentials: {self.credentials_path}")
+            # Explicitly pass service_account_key to GoogleDocsReader
+            reader = GoogleDocsReader(service_account_key=self.credentials_path)
+            print(f"[LOG] (Docs) Reader created with service_account_key.")
+            # Load documents from Google Docs
+            documents = reader.load_data(document_ids=self.doc_ids)
+            print(f"[LOG] (Docs) Documents loaded: {len(documents) if documents else 0}")
+            # Customize metadata for each document
             for doc in documents:
                 self.customize_metadata(doc, data_source_id)
             return documents
@@ -47,21 +43,29 @@ class GoogleDocsEmbeddingMethod(EmbeddingMethod):
             print(f"Error loading documents from Google Docs: {e}")
             return []
 
-    def get_nodes(self, documents: Sequence[Document]) -> Sequence[BaseNode]:
+    def download_and_process(self) -> Sequence[Document]:
+        """Download and process documents from Google Docs"""
+        return self.get_documents()
+
+    def create_nodes(self, documents: Sequence[Document]) -> List[BaseNode]:
+        """Create nodes from documents"""
         pipeline = IngestionPipeline(
             transformations=[
-                SentenceSplitter(chunk_size=512, chunk_overlap=20)
+                SentenceSplitter(chunk_size=1024, chunk_overlap=20)
             ]
         )
-        num_workers = multiprocessing.cpu_count()
-        return pipeline.run(documents=documents, num_workers=num_workers)
+        nodes = pipeline.run(documents=documents)
+        return nodes
 
     def process(
         self,
-        vector_store,
-        task_manager,
-        data_source_id: str,
-        task_id: str,
-        **kwargs,
-    ) -> None:
-        pass 
+        documents: Sequence[Document],
+        data_source_id: str = "google_docs"
+    ) -> List[BaseNode]:
+        """Process documents and create nodes"""
+        # Customize metadata for each document
+        for doc in documents:
+            self.customize_metadata(doc, data_source_id)
+        
+        # Create nodes
+        return self.create_nodes(documents) 

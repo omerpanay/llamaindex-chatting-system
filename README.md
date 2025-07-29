@@ -1,74 +1,146 @@
-# 📄 LlamaIndex Chat System
+# 🤖 LlamaIndex Chat System
 
-This project allows you to chat with documents from different data sources (Google Drive, Google Docs) using LlamaIndex’s **official data connectors** and a modular, protocol-driven architecture.
+Bu uygulama, Google Drive ve Google Docs'tan veri çekerek LlamaIndex ile chat yapmanızı sağlar.
 
-## 🚀 Features
-- Download and index PDF files from Google Drive using `GoogleDriveReader`
-- Read and index Google Docs documents using `GoogleDocsReader`
-- HuggingFace-based embedding model (BAAI/bge-small-en-v1.5)
-- Fast and cost-effective answers with Google Gemini LLM (gemini-1.5-flash)
-- Modern, user-friendly chat interface built with Streamlit
-- Modular, extensible, and protocol-based architecture
+## 🚀 Özellikler
 
-## 📁 Project Structure
-```
-project/
-├── google_drive/          # Google Drive integration
-│   ├── embedding_method.py # Uses LlamaIndex GoogleDriveReader
-│   └── chat_interface.py
-├── google_docs/           # Google Docs integration
-│   ├── embedding_method.py # Uses LlamaIndex GoogleDocsReader
-│   └── chat_interface.py
-├── shared/                # Shared utilities and configuration
-│   ├── protocol.py        # EmbeddingMethod protocol
-│   ├── llama_utils.py
-│   └── config.py
-├── main.py                # Main entry point
-├── requirements.txt
-└── .gitignore
+- **Google Drive Entegrasyonu**: PDF ve diğer dosyaları Google Drive'dan indirip indexleme
+- **Google Docs Entegrasyonu**: Google Docs belgelerini doğrudan okuyup chat yapma
+- **Güvenli Credentials Yönetimi**: Credentials dosyasını güvenli şekilde yükleme
+- **Streamlit Arayüzü**: Kullanıcı dostu web arayüzü
+- **Çoklu Veri Kaynağı**: Drive ve Docs arasında geçiş yapabilme
+- **Python 3.11 Uyumluluğu**: Stabil Python sürümü ile uyumlu
+
+## 📋 Gereksinimler
+
+- Python 3.11 (Önerilen)
+- Google Cloud Project
+- Google Drive API ve Google Docs API etkinleştirilmiş
+- Service Account credentials
+
+## 🛠️ Kurulum
+
+### 1. Repository'yi klonlayın
+```bash
+git clone <repository-url>
+cd LlamaIndexing
 ```
 
-## 🏗️ Architecture
-- **Official LlamaIndex Readers:**  
-  - Google Drive: [`GoogleDriveReader`](https://docs.llamaindex.ai/en/stable/examples/data_connectors/GoogleDriveDemo/)
-  - Google Docs: [`GoogleDocsReader`](https://docs.llamaindex.ai/en/stable/examples/data_connectors/GoogleDriveDemo/)
-- **Protocol-based:**  
-  - All data sources implement the `EmbeddingMethod` protocol for consistency and extensibility.
-- **Class-based & Modular:**  
-  - Each data source has its own class and folder.
-  - Shared logic is in the `shared/` folder.
+### 2. Python 3.11'i kurun
+```bash
+# Windows için
+winget install Python.Python.3.11
 
-## ⚡️ Quick Start
+# veya https://www.python.org/downloads/ adresinden indirin
+```
 
-1. **Install dependencies:**
+### 3. Virtual Environment oluşturun
+```bash
+# Python 3.11 ile virtual environment oluşturun
+py -3.11 -m venv venv
+
+# Virtual environment'ı aktifleştirin
+# Windows
+venv\Scripts\activate
+
+# Linux/Mac
+source venv/bin/activate
+```
+
+### 4. Gerekli paketleri yükleyin
    ```bash
    pip install -r requirements.txt
-   pip install llama-index-readers-google
-   ```
+```
 
-2. **Google Cloud Setup:**
-   - Enable Google Drive and Google Docs APIs.
-   - Create an OAuth 2.0 Client ID (Desktop app) and download the credentials as `credentials.json`.
-   - Add your Google account as a test user in the OAuth consent screen.
-   - Place `credentials.json` in the project root.
+### 5. Google Cloud Setup
+1. [Google Cloud Console](https://console.cloud.google.com/)'a gidin
+2. Yeni bir proje oluşturun veya mevcut projeyi seçin
+3. Google Drive API ve Google Docs API'yi etkinleştirin
+4. Service Account oluşturun
+5. JSON key dosyasını indirin
 
-3. **Run the app:**
+## 🚀 Kullanım
+
+### 1. Uygulamayı başlatın
    ```bash
    streamlit run main.py
    ```
 
-4. **In the web interface:**
-   - Select your data source (Google Drive or Google Docs)
-   - Click “Download & Index PDFs” or “Download & Index Document”
-   - Ask questions and chat with your documents!
+### 2. Credentials yükleyin
+- Sidebar'da "Upload your credentials.json file" bölümünden credentials dosyanızı yükleyin
 
-## 📝 Notes
-- Files like `credentials.json`, `drive_downloads/`, and `llama_index_storage/` are excluded from version control via `.gitignore`.
-- The project is compatible with Python 3.9+.
+### 3. Veri kaynağı seçin
+- **Google Drive**: Folder ID girin ve PDF'leri indexleyin
+- **Google Docs**: Document ID girin ve belgeleri okuyun
 
-## 🤝 Contributing
-Contributions and suggestions are welcome!
+### 4. Chat yapın
+- Sorularınızı sorun ve AI'dan cevaplar alın
 
----
+## 📁 Proje Yapısı
 
-**This project is built with official LlamaIndex connectors and follows a clean, extensible, and professional architecture.** 
+```
+LlamaIndexing/
+├── main.py                 # Ana uygulama
+├── requirements.txt        # Gerekli paketler
+├── README.md              # Dokümantasyon
+├── .gitignore             # Git ignore dosyası
+├── google_drive/          # Google Drive modülü
+│   ├── chat_interface.py  # Drive chat arayüzü
+│   ├── embedding_method.py # Drive embedding metodu
+│   └── downloader.py      # Dosya indirme
+├── google_docs/           # Google Docs modülü
+│   ├── chat_interface.py  # Docs chat arayüzü
+│   ├── embedding_method.py # Docs embedding metodu
+│   └── api_client.py      # API istemcisi
+└── shared/                # Paylaşılan modüller
+    ├── config.py          # Konfigürasyon
+    ├── llama_utils.py     # LlamaIndex yardımcıları
+    └── protocol.py        # Protokol tanımları
+```
+
+## 🔧 Konfigürasyon
+
+### Environment Variables
+```bash
+# Google API Key (opsiyonel)
+GOOGLE_API_KEY=your_api_key
+
+# Google Application Credentials (otomatik ayarlanır)
+GOOGLE_APPLICATION_CREDENTIALS=path/to/credentials.json
+```
+
+### Varsayılan Ayarlar
+- **Drive Folder ID**: `1zyKR8R9SxhOmp4wCqTlojNb9SZMZJfkF`
+- **Docs Document ID**: `1sJjoOHvUMwFX7q0iU8aUnOS4d6889QDT_YTernsJgAk`
+- **Embedding Model**: `BAAI/bge-small-en-v1.5`
+- **LLM Model**: `gemini-1.5-flash`
+
+## 🛠️ Sorun Giderme
+
+### Python Sürüm Sorunları
+- Python 3.11 kullanın (Python 3.13'te uyumluluk sorunları olabilir)
+- Virtual environment kullanarak izole edin
+
+### Credentials Sorunları
+- Service Account'un doğru izinlere sahip olduğundan emin olun
+- JSON dosyasının geçerli olduğunu kontrol edin
+
+### API Limitleri
+- Google API limitlerini kontrol edin
+- Rate limiting için bekleyin
+
+## 📝 Lisans
+
+Bu proje MIT lisansı altında lisanslanmıştır.
+
+## 🤝 Katkıda Bulunma
+
+1. Fork yapın
+2. Feature branch oluşturun (`git checkout -b feature/amazing-feature`)
+3. Commit yapın (`git commit -m 'Add amazing feature'`)
+4. Push yapın (`git push origin feature/amazing-feature`)
+5. Pull Request oluşturun
+
+## 📞 İletişim
+
+Sorularınız için issue açın veya iletişime geçin. 
